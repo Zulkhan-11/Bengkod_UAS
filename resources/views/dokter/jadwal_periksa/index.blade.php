@@ -55,11 +55,8 @@
                                     @endif
                                 </td>
                                 <td>
-                                    {{-- =============================================== --}}
-                                    {{-- == BAGIAN INI YANG DIPERBAIKI DAN DISESUAIKAN == --}}
-                                    {{-- =============================================== --}}
                                     
-                                    {{-- Tombol Edit sekarang mengarah ke halaman edit yang benar --}}
+                                    {{-- Tombol Edit  mengarah ke halaman edit yang benar --}}
                                     <a href="{{ route('dokter.jadwal-periksa.edit', $jadwal->id) }}" class="btn btn-xs btn-info">Edit</a>
                                     
                                     {{-- Tombol Hapus tetap ada --}}
@@ -69,7 +66,6 @@
                                         <button type="submit" class="btn btn-xs btn-danger">Hapus</button>
                                     </form>
 
-                                    {{-- Form untuk Aktifkan/Nonaktifkan sudah dihapus dari sini --}}
                                 </td>
                             </tr>
                         @empty

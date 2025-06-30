@@ -20,7 +20,7 @@
                 @csrf
                 @method('PUT')
                 <div class="card-body">
-                    {{-- Input Hari, Jam Mulai, dan Jam Selesai dibuat readonly --}}
+                    {{-- Input Hari, Jam Mulai, dan Jam Selesai --}}
                     <div class="form-group">
                         <label>Hari</label>
                         <input type="text" class="form-control" value="{{ $jadwalPeriksa->hari }}" readonly>

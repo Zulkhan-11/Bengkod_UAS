@@ -4,121 +4,90 @@ namespace App\Http\Controllers\Dokter;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Periksa;
+use App\Models\Obat;
+use App\Models\DetailPeriksa;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
-// Import Models
-use App\Models\JanjiTemu;
-use App\Models\Periksa;
-use App\Models\DetailPeriksa;
-use App\Models\Obat;
+use Carbon\Carbon;
 
 class PeriksaController extends Controller
 {
-    /**
-     * Menampilkan daftar pasien yang siap untuk diperiksa.
-     */
     public function index()
     {
-        // --- INI BAGIAN YANG DIPERBAIKI ---
-        // Mengubah filter dari 'diterima' menjadi 'menunggu'
-        // Ini akan mengambil semua pasien yang baru mendaftar
-        $daftarPeriksa = JanjiTemu::with('pasien')
-                            ->where('dokter_id', Auth::id())
-                            ->where('status', 'menunggu') 
-                            ->get();
-        
+        $dokterId = Auth::id();
+        $daftarPeriksa = Periksa::with('pasien')
+                                ->where('dokter_id', $dokterId)
+                                ->whereDate('tgl_periksa', now())
+                                ->orderBy('status', 'asc')
+                                ->orderBy('created_at', 'asc')
+                                ->get();
         return view('dokter.periksa.index', compact('daftarPeriksa'));
     }
-
-    /**
-     * Menampilkan form untuk memulai pemeriksaan.
-     * Saat dokter mulai memeriksa, statusnya diubah menjadi 'diterima'.
-     */
-    public function periksa(JanjiTemu $janjiTemu)
+    public function create(Periksa $periksa)
     {
-        if ($janjiTemu->dokter_id != Auth::id()) {
-            abort(403);
-        }
-
-        // Saat dokter mengklik tombol 'Edit/Mulai Periksa',
-        // kita anggap janji temu telah diterima.
-        $janjiTemu->update(['status' => 'diterima']);
-
-        $obats = Obat::all();
-        return view('dokter.periksa.form', compact('janjiTemu', 'obats'));
+        if ($periksa->dokter_id != Auth::id()) { abort(403, 'Akses tidak diizinkan.'); }
+        $obats = Obat::get(['id', 'nama_obat', 'harga']); 
+        return view('dokter.periksa.form', compact('periksa', 'obats'));
     }
-
-    /**
-     * Menyimpan data hasil pemeriksaan baru.
-     */
-    public function store(Request $request, JanjiTemu $janjiTemu)
+    public function store(Request $request, Periksa $periksa)
     {
+        if ($periksa->dokter_id != Auth::id()) { abort(403, 'Akses tidak diizinkan.'); }
         $request->validate([
             'catatan' => 'required|string',
-            'diagnosa' => 'required|string', // Menggunakan 'diagnosa'
+            'obat_id' => 'nullable|array',
+            'obat_id.*' => 'exists:obat,id',
         ]);
-
-        DB::beginTransaction();
-        try {
+        DB::transaction(function () use ($request, $periksa) {
             $totalHarga = 0;
+            DetailPeriksa::where('periksa_id', $periksa->id)->delete();
             if ($request->has('obat_id')) {
-                foreach ($request->obat_id as $index => $id_obat) {
+                foreach ($request->obat_id as $id_obat) {
                     $obat = Obat::find($id_obat);
-                    $totalHarga += $obat->harga * $request->jumlah[$index];
+                    if ($obat) {
+                        $jumlah = 1;
+                        DetailPeriksa::create(['periksa_id' => $periksa->id, 'obat_id' => $id_obat, 'jumlah' => $jumlah]);
+                        $totalHarga += $obat->harga * $jumlah;
+                    }
                 }
             }
-
-            $periksa = Periksa::create([
-                'id_janji' => $janjiTemu->id,
-                'id_pasien' => $janjiTemu->pasien_id,
-                'id_dokter' => Auth::id(),
-                'tgl_periksa' => now(),
-                'catatan' => $request->catatan,
-                'diagnosa' => $request->diagnosa, // Menggunakan 'diagnosa'
-                'total_harga_obat' => $totalHarga,
-            ]);
-
-            if ($request->has('obat_id')) {
-                foreach ($request->obat_id as $index => $id_obat) {
-                    DetailPeriksa::create([
-                        'id_periksa' => $periksa->id,
-                        'id_obat' => $id_obat,
-                        'jumlah' => $request->jumlah[$index],
-                    ]);
-                }
-            }
-
-            // Update status janji temu menjadi 'selesai'
-            $janjiTemu->update(['status' => 'selesai']);
-
-            DB::commit();
-            return redirect()->route('dokter.periksa.index')->with('success', 'Pemeriksaan berhasil disimpan.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan data. ' . $e->getMessage());
-        }
+            $periksa->update(['catatan' => $request->catatan, 'diagnosa' => 'Sesuai resep.', 'total_harga_obat' => $totalHarga, 'status' => 'selesai']);
+        });
+        return redirect()->route('dokter.periksa.index')->with('success', 'Data pemeriksaan berhasil disimpan!');
     }
-    
-    // ... (Sisa method riwayat, edit, update tidak perlu diubah)
     public function riwayat()
     {
-        $riwayatPeriksa = Periksa::with('pasien')->where('id_dokter', Auth::id())->latest('tgl_periksa')->get();
+        $riwayatPeriksa = Periksa::with('pasien')->where('dokter_id', Auth::id())->where('status', 'selesai')->latest('tgl_periksa')->get();
         return view('dokter.riwayat.index', compact('riwayatPeriksa'));
     }
+
+
+    /**
+     * Untuk Menampilkan form edit pemeriksaan.
+     */
     public function edit(Periksa $periksa)
     {
-        if ($periksa->id_dokter != Auth::id()) { abort(403); }
-        $periksa->load('pasien', 'detailPeriksa.obat');
-        $obats = Obat::all();
-        return view('dokter.periksa.edit', compact('periksa', 'obats'));
+        if ($periksa->dokter_id != Auth::id()) {
+            abort(403, 'Akses tidak diizinkan.');
+        }
+        
+        // untuk Memuat relasi detail resep yang sudah ada
+        $periksa->load('detail');
+        
+        // untuk Mengambil semua obat yang tersedia
+        $obats = Obat::get(['id', 'nama_obat', 'harga']);
+
+        $selectedObatIds = $periksa->detail->pluck('obat_id')->toArray();
+        
+        // untuk mengirim semua data yang diperlukan ke view, termasuk variabel baru
+        return view('dokter.periksa.edit', compact('periksa', 'obats', 'selectedObatIds')); 
     }
+
+    /**
+     * untuk Memperbarui data pemeriksaan.
+     */
     public function update(Request $request, Periksa $periksa)
     {
-        if ($periksa->id_dokter != Auth::id()) { abort(403); }
-        $request->validate(['catatan' => 'required|string', 'diagnosa' => 'required|string']);
-        $periksa->update(['catatan' => $request->catatan, 'diagnosa' => $request->diagnosa]);
-        return redirect()->route('dokter.riwayat.index')->with('success', 'Data pemeriksaan berhasil diperbarui.');
+        return $this->store($request, $periksa);
     }
 }

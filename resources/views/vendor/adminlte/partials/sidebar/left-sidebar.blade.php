@@ -12,7 +12,7 @@
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 
-                {{-- Menu untuk Admin (Tidak diubah) --}}
+                {{-- Menu untuk Admin  --}}
                 @if (Auth::user()->role == 'admin')
 
                     <li class="nav-header">MENU ADMINISTRATOR</li>
@@ -47,7 +47,7 @@
                         </a>
                     </li>
 
-                {{-- Menu untuk Dokter (INI YANG KITA SESUAIKAN) --}}
+                {{-- Menu untuk Dokter  --}}
                 @elseif (Auth::user()->role == 'dokter')
                     
                     <li class="nav-header">MENU DOKTER</li>
@@ -70,13 +70,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        {{-- =============================================== --}}
-                        {{-- == INI BAGIAN YANG DIPERBAIKI == --}}
+
                         <a href="{{ route('dokter.riwayat.index') }}" class="nav-link {{ request()->routeIs('dokter.riwayat.index') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-history"></i>
                             <p>Riwayat Pasien</p>
                         </a>
-                        {{-- =============================================== --}}
+                        
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('dokter.profil') }}" class="nav-link {{ request()->routeIs('dokter.profil') ? 'active' : '' }}">
@@ -85,7 +84,7 @@
                         </a>
                     </li>
 
-                {{-- Menu untuk Pasien (Tidak diubah) --}}
+                {{-- Menu untuk Pasien --}}
                 @elseif (Auth::user()->role == 'pasien')
                     
                     <li class="nav-header">MENU PASIEN</li>
@@ -102,7 +101,6 @@
                         </a>
                     </li>
                 @endif
-                {{-- Akhir dari blok if/elseif --}}
 
                 {{-- Menu Logout untuk semua role --}}
                 <li class="nav-header">PENGATURAN AKUN</li>

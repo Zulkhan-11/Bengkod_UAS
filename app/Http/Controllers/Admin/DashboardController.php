@@ -12,19 +12,19 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Hitung semua user dengan role 'dokter'
+        // untuk menghitung semua user dengan role 'dokter'
         $jumlahDokter = User::where('role', 'dokter')->count();
 
-        // Hitung semua user dengan role 'pasien'
+        // untuk menghitung semua user dengan role 'pasien'
         $jumlahPasien = User::where('role', 'pasien')->count();
 
-        // Hitung semua jenis obat yang ada
+        // untuk menghitung semua jenis obat yang ada
         $jumlahObat = Obat::count();
 
-        // Contoh data untuk poli, Anda bisa menggantinya nanti
+        // data untuk poli
         $jumlahPoli = Poli::count(); 
 
-        // Kirim semua data ke view
+        // untuk mengirim semua data ke view
         return view('admin.dashboard', compact(
             'jumlahDokter',
             'jumlahPasien',

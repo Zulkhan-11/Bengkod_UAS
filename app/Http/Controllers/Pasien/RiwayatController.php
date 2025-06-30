@@ -4,34 +4,40 @@ namespace App\Http\Controllers\Pasien;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\JanjiTemu; // Jangan lupa import Model
-use Illuminate\Support\Facades\Auth; // Jangan lupa import Auth
+use App\Models\Periksa;
+use Illuminate\Support\Facades\Auth;
 
 class RiwayatController extends Controller
 {
+    /**
+     * Untuk Menampilkan daftar semua riwayat pemeriksaan pasien.
+     */
     public function index()
     {
-        // Ambil semua janji temu milik pasien yang sedang login
-        // Diurutkan dari yang terbaru
-        $riwayatJanjiTemu = JanjiTemu::where('pasien_id', Auth::id())
-                                 ->with('dokter') // 'with()' bagus untuk performa, memuat data dokter sekaligus
-                                 ->orderBy('created_at', 'desc') // Urutkan agar yang baru dibuat ada di paling atas
-                                 ->get();
-        // Kirim data ke view milik pasien
-        return view('pasien.riwayat.index', compact('riwayatJanjiTemu'));
+        // Untuk Mengambil data dari tabel 'periksa' untuk pasien yang login
+        $riwayatPemeriksaan = Periksa::where('pasien_id', Auth::id())
+                                      ->with('dokter', 'jadwal.poli')
+                                      ->latest()
+                                      ->get();
+        
+        // Untuk Mengirim data ke view 'pasien.riwayat.index'
+        return view('pasien.riwayat.index', compact('riwayatPemeriksaan'));
     }
 
-    public function show(JanjiTemu $janjiTemu)
+    /**
+     * Untuk Menampilkan detail satu riwayat pemeriksaan.
+     */
+    public function show(Periksa $periksa)
     {
-        // Keamanan: pastikan pasien hanya bisa melihat riwayatnya sendiri
-        if ($janjiTemu->pasien_id != Auth::id()) {
-            abort(403);
+        // Untuk Memastikan riwayat yang akan dilihat adalah milik pasien yang sedang login.
+        if ($periksa->pasien_id !== Auth::id()) {
+            abort(403, 'AKSES DITOLAK. ANDA TIDAK BERHAK MELIHAT RIWAYAT INI.');
         }
 
-        // Kita tidak perlu query lagi, karena data sudah dimuat dari route model binding
-        // Untuk memastikan relasi termuat, kita bisa load di sini
-        $janjiTemu->load(['dokter', 'periksa.detailPeriksa.obat']);
-
-        return view('pasien.riwayat.show', compact('janjiTemu'));
+        // Jika akses diizinkan, muat relasi yang diperlukan untuk halaman detail
+        $periksa->load('pasien', 'dokter', 'jadwal.poli', 'detail.obat');
+        
+        // Untuk Mengirim data ke view 'pasien.riwayat.show'
+        return view('pasien.riwayat.show', compact('periksa'));
     }
 }

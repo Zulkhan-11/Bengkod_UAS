@@ -11,10 +11,10 @@ class NotifikasiController extends Controller
 {
     public function index()
     {
-        // Ambil semua notifikasi untuk dokter yang sedang login
+        // untuk mengambil semua notifikasi untuk dokter yang sedang login
         $notifikasis = Notifikasi::where('user_id', Auth::id())->latest()->get();
 
-        // Tampilkan view dan kirim data
+        // untuk menampilkan view dan kirim data
         return view('dokter.notifikasi.index', compact('notifikasis'));
     }
 }

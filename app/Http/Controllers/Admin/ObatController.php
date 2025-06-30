@@ -21,8 +21,7 @@ class ObatController extends Controller
 
     public function store(Request $request)
     {
-        // --- INI BAGIAN YANG DIPERBAIKI ---
-        // Mengubah 'unique:obats' menjadi 'unique:obat'
+        
         $request->validate([
             'nama_obat' => 'required|string|max:255|unique:obat,nama_obat',
             'kemasan' => 'required|string|max:255',
@@ -47,8 +46,7 @@ class ObatController extends Controller
 
     public function update(Request $request, Obat $obat)
     {
-        // --- INI JUGA BAGIAN YANG DIPERBAIKI ---
-        // Mengubah 'unique:obats' menjadi 'unique:obat'
+        
         $request->validate([
             'nama_obat' => 'required|string|max:255|unique:obat,nama_obat,' . $obat->id,
             'kemasan' => 'required|string|max:255',

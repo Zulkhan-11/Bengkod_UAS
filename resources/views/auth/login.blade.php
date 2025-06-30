@@ -5,7 +5,7 @@
     {{-- @parent akan menampilkan isi asli dari footer (link 'Lupa Password') --}}
     @parent
 
-    {{-- Ini adalah link baru Anda untuk halaman registrasi --}}
+    {{-- Ini adalah link untuk halaman registrasi --}}
     <p class="mb-0">
         <a href="{{ route('register') }}" class="text-center">
             Daftar keanggotaan baru

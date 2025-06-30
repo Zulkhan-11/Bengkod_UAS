@@ -11,20 +11,23 @@ class Obat extends Model
 
     /**
      * The table associated with the model.
-     * Baris ini memberitahu Laravel bahwa nama tabel yang benar adalah 'obat' (tunggal).
-     *
+     * =========================================================================
+     * == BARIS INI ADALAH KUNCI UTAMA UNTUK MENYELESAIKAN ERROR ANDA         ==
+     * == Ini memberitahu Laravel bahwa Model 'Obat' menggunakan tabel 'obat' ==
+     * =========================================================================
      * @var string
      */
-    protected $table = 'obat'; // TAMBAHKAN BARIS INI
+    protected $table = 'obat';
 
     /**
      * The attributes that are mass assignable.
+     * Kolom-kolom yang boleh diisi secara massal.
      *
      * @var array<int, string>
      */
     protected $fillable = [
         'nama_obat',
-        'kemasan',
+        'kemasan', // atau 'keterangan' sesuai struktur tabel Anda
         'harga',
     ];
 }

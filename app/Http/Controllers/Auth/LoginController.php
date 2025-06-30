@@ -18,7 +18,6 @@ class LoginController extends Controller
             case 'admin':
                 return redirect()->route('admin.dashboard');
             case 'dokter':
-                // 👇 PERBAIKAN ADA DI SINI 👇
                 return redirect()->route('dokter.dashboard'); 
             case 'pasien':
                 return redirect()->route('pasien.dashboard');

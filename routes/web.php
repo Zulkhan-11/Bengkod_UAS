@@ -5,21 +5,24 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
 
 // Controller untuk Admin
+// Perbaikan: Mengganti '->' menjadi '\' pada namespace
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\ObatController;
 use App\Http\Controllers\Admin\PoliController;
 
 // Controller untuk Dokter
+// Perbaikan: Mengganti '->' menjadi '\' pada namespace
 use App\Http\Controllers\Dokter\PeriksaController;
-use App\Http\Controllers\Dokter\JadwalOperasiController;
-use App\Http\Controllers\Dokter\NotifikasiController;
+use App\Http\Controllers\Dokter\JadwalOperasiController; // Ini harus App\Http\Controllers\Dokter\JadwalOperasiController
+use App\Http\Controllers\Dokter\NotifikasiController;    // Ini harus App\Http\Controllers\Dokter\NotifikasiController
 use App\Http\Controllers\Dokter\ResepController;
-use App\Http\Controllers\Dokter\JadwalPeriksaController;
+use App\Http\Controllers\Dokter\JadwalPeriksaController; // Ini harus App\Http\Controllers\Dokter\JadwalPeriksaController
 
 // Controller untuk Pasien
+// Perbaikan: Mengganti '->' menjadi '\' pada namespace
 use App\Http\Controllers\PasienController;
-use App\Http\Controllers\Pasien\JanjiTemuController;
+use App\Http\Controllers\Pasien\JanjiTemuController; // Ini harus App\Http\Controllers\Pasien\JanjiTemuController
 use App\Http\Controllers\Pasien\RiwayatController;
 
 /*
@@ -44,7 +47,11 @@ Route::get('/', function () {
 
 Auth::routes();
 Route::get('/home', [HomeController::class, 'index'])->name('home');
-Route::get('/get-jadwal-by-poli/{id}', [JadwalPeriksaController::class, 'getJadwalByPoli'])->name('get-jadwal-by-poli');
+
+// Rute global untuk mendapatkan jadwal, sekarang ditangani oleh PasienController
+// (seperti yang telah disepakati sebelumnya di PasienController.php)
+Route::get('/get-jadwal-by-poli/{poliID}', [PasienController::class, 'getJadwalByPoli']);
+
 
 // GRUP ROUTE UNTUK ADMIN
 Route::middleware(['auth', 'can:is-admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -72,14 +79,12 @@ Route::middleware(['auth', 'can:is-dokter'])->prefix('dokter')->name('dokter.')-
     Route::get('/profil', [HomeController::class, 'profil'])->name('profil');
     Route::put('/profil', [HomeController::class, 'updateProfil'])->name('profil.update');
     
-    // Menggunakan route manual untuk periksa agar lebih jelas dan lengkap
     Route::get('/periksa', [PeriksaController::class, 'index'])->name('periksa.index');
-    Route::get('/periksa/mulai/{periksa}', [PeriksaController::class, 'periksa'])->name('periksa.mulai');
+    Route::get('/periksa/mulai/{periksa}', [PeriksaController::class, 'create'])->name('periksa.mulai');
     Route::post('/periksa/simpan/{periksa}', [PeriksaController::class, 'store'])->name('periksa.store');
     Route::get('/periksa/{periksa}/edit', [PeriksaController::class, 'edit'])->name('periksa.edit');
     Route::put('/periksa/{periksa}', [PeriksaController::class, 'update'])->name('periksa.update');
     
-    // Route untuk Riwayat Pasien
     Route::get('/riwayat', [PeriksaController::class, 'riwayat'])->name('riwayat.index');
 
     Route::resource('jadwal-operasi', JadwalOperasiController::class)->names('jadwal');
@@ -96,11 +101,14 @@ Route::middleware(['auth', 'can:is-pasien'])->prefix('pasien')->name('pasien.')-
     Route::get('/resep-obat', [PasienController::class, 'resepObat'])->name('obat.index');
     Route::get('/profil-medis', [PasienController::class, 'profilMedis'])->name('profil.medis');
     
-    // Route untuk alur pendaftaran poli
-    Route::get('/poli-daftar', [JanjiTemuController::class, 'halamanDaftarPoli'])->name('poli.daftar');
-    Route::post('/poli-daftar', [JanjiTemuController::class, 'storePoli'])->name('poli.store');
+    // Rute untuk alur pendaftaran poli
+    Route::get('/poli', [PasienController::class, 'daftarPoli'])->name('poli.daftar');
+    Route::post('/poli', [PasienController::class, 'store'])->name('poli.store');
     
-    // Route untuk riwayat pasien
+    // Rute untuk menampilkan detail pendaftaran poli
+    Route::get('/poli/{id}/detail', [PasienController::class, 'showDetail'])->name('poli.detail');
+
+    // Rute untuk riwayat pasien
     Route::get('/riwayat-pemeriksaan', [RiwayatController::class, 'index'])->name('riwayat.index');
     Route::get('/riwayat/{periksa}', [RiwayatController::class, 'show'])->name('riwayat.show');
 });

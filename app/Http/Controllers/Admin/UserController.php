@@ -11,7 +11,6 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    // ... (method untuk dokter tidak diubah, jadi saya singkat di sini)
     public function indexDokter()
     {
         $dokters = User::where('role', 'dokter')->latest()->paginate(10);
@@ -71,10 +70,7 @@ class UserController extends Controller
         return redirect()->route('admin.dokter.index')->with('success', 'Data dokter berhasil dihapus.');
     }
 
-
-    // =================================================================
-    // == PENYESUAIAN ADA DI DALAM METHOD UNTUK PASIEN DI BAWAH INI ==
-    // =================================================================
+    // PENYESUAIAN ADA DI DALAM METHOD UNTUK PASIEN DI BAWAH INI
 
     public function indexPasien()
     {
@@ -94,7 +90,6 @@ class UserController extends Controller
 
     public function updatePasien(Request $request, User $pasien)
     {
-        // 1. Validasi input, email sudah tidak ada lagi
         $request->validate([
             'name' => 'required|string|max:255',
             'nik' => ['required', 'string', 'digits:16', Rule::unique('users')->ignore($pasien->id)],
@@ -103,7 +98,7 @@ class UserController extends Controller
             'no_rm' => ['nullable', 'string', Rule::unique('users')->ignore($pasien->id)],
         ]);
         
-        // 2. Update data tanpa menyentuh password dan email
+        // untuk Update data tanpa menyentuh password dan email
         $pasien->update($request->except(['password', 'email']));
 
         return redirect()->route('admin.pasien.index')
@@ -119,7 +114,7 @@ class UserController extends Controller
     
     public function storePasien(Request $request)
     {
-        // 1. Validasi input, email dihapus dari sini
+    
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'nik' => ['required', 'string', 'digits:16', 'unique:users,nik'],
@@ -127,7 +122,7 @@ class UserController extends Controller
             'no_hp' => ['required', 'string', 'max:15'],
         ]);
 
-        // 2. Membuat No. RM, email, dan password default secara otomatis
+        // untuk Membuat No. RM, email, dan password default secara otomatis
         $no_rm = date('Ym') . '-' . str_pad(User::where('role', 'pasien')->count() + 1, 3, '0', STR_PAD_LEFT);
 
         User::create([
@@ -137,7 +132,7 @@ class UserController extends Controller
             'no_hp' => $request->no_hp,
             'role' => 'pasien',
             'no_rm' => $no_rm,
-            'email' => 'pasien.' . time() . '@klinik.com', // Email unik otomatis
+            'email' => 'pasien.' . time() . '@gmail.com',
             'password' => Hash::make('password'),
         ]);
 

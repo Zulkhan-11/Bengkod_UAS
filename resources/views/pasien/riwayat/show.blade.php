@@ -1,51 +1,83 @@
-{{-- resources/views/pasien/riwayat/show.blade.php --}}
+@extends('adminlte::page')
 
-@extends('layouts.app') {{-- Ganti ini sesuai nama layout Anda --}}
+@section('title', 'Detail Riwayat Pemeriksaan')
+
+@section('content_header')
+    <h1>Detail Riwayat Pemeriksaan</h1>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ route('pasien.dashboard') }}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('pasien.riwayat.index') }}">Riwayat</a></li>
+        <li class="breadcrumb-item active">Detail</li>
+    </ol>
+@stop
 
 @section('content')
-<div class="container">
-    <div class="card">
-        <div class="card-header">
-            <h3>Detail Pemeriksaan - {{ $janjiTemu->tanggal_janji->format('d F Y') }}</h3>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Detail Pemeriksaan - {{ \Carbon\Carbon::parse($periksa->tgl_periksa)->format('d F Y') }}</h3>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <tr>
+                        <th style="width: 30%;">Nama Pasien</th>
+                        <td>{{ $periksa->pasien->name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Dokter</th>
+                        <td>{{ $periksa->dokter->name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Poli</th>
+                        <td>{{ $periksa->dokter?->poli?->nama_poli ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Keluhan Utama</th>
+                        <td>{{ $periksa->keluhan }}</td>
+                    </tr>
+                     <tr>
+                        <th>Catatan / Diagnosa</th>
+                        <td>{{ $periksa->catatan }}</td>
+                    </tr>
+                </table>
+            </div>
         </div>
-        <div class="card-body">
-            <p><strong>Dokter:</strong> {{ $janjiTemu->dokter->name }}</p>
-            <p><strong>Pasien:</strong> {{ $janjiTemu->pasien->name }}</p>
-            <hr>
-            
-            <h4>Keluhan Awal</h4>
-            <p>{{ $janjiTemu->keluhan }}</p>
-            <hr>
-
-            {{-- Pastikan data pemeriksaan ada sebelum ditampilkan --}}
-            @if ($janjiTemu->periksa)
-                <h4>Hasil Diagnosa</h4>
-                <p>{{ $janjiTemu->periksa->diagnosa }}</p>
-                
-                <h4>Catatan dari Dokter</h4>
-                <p>{{ $janjiTemu->periksa->catatan ?: '-' }}</p>
-                <hr>
-
-                <h4>Resep Obat</h4>
-                @if ($janjiTemu->periksa->detailPeriksa->isNotEmpty())
-                    <ul class="list-group">
-                        @foreach ($janjiTemu->periksa->detailPeriksa as $resep)
-                            <li class="list-group-item">
-                                {{ $resep->obat->nama_obat }} - {{ $resep->jumlah }} {{ $resep->obat->satuan }}
-                            </li>
-                        @endforeach
-                    </ul>
-                @else
-                    <p>Tidak ada resep obat.</p>
-                @endif
-            @else
-                <p class="text-muted">Detail hasil pemeriksaan belum tersedia.</p>
-            @endif
-
-            <div class="mt-4">
-                <a href="{{ route('pasien.riwayat.index') }}" class="btn btn-secondary">Kembali ke Riwayat</a>
+    </div>
+    <div class="col-md-6">
+        <div class="card card-success">
+            <div class="card-header">
+                <h3 class="card-title">Resep Obat</h3>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nama Obat</th>
+                            <th>Jumlah</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($periksa->detail as $item)
+                            <tr>
+                                <td>{{ $item->obat->nama_obat }}</td>
+                                <td>{{ $item->jumlah }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="2" class="text-center">Tidak ada resep obat untuk pemeriksaan ini.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+                 <hr>
+                <strong>Total Biaya Obat:</strong>
+                <h4 class="float-right">Rp {{ number_format($periksa->total_harga_obat, 0, ',', '.') }}</h4>
+            </div>
+            <div class="card-footer text-right">
+                <a href="{{ route('pasien.poli.daftar') }}" class="btn btn-secondary">Kembali</a>
             </div>
         </div>
     </div>
 </div>
-@endsection
+@stop

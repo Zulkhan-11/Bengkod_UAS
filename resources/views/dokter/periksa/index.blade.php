@@ -19,34 +19,52 @@
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Daftar Pasien</h3>
+                <h3 class="card-title">Antrean Pasien Hari Ini</h3>
             </div>
             <div class="card-body table-responsive p-0">
-                <table class="table table-hover">
+                <table class="table table-hover text-nowrap">
                     <thead>
                         <tr>
                             <th>No Urut</th>
                             <th>Nama Pasien</th>
                             <th>Keluhan</th>
+                            <th>Status</th>
                             <th style="width: 100px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($daftarPeriksa as $janji)
+                        {{-- Variabel $daftarPeriksa dikirim dari PeriksaController --}}
+                        @forelse ($daftarPeriksa as $periksa)
                             <tr>
-                                <td>{{ $janji->nomor_antrian ?? $loop->iteration }}</td>
-                                <td>{{ $janji->pasien->name ?? 'Nama Pasien Tidak Ditemukan' }}</td>
-                                <td>{{ $janji->keluhan }}</td>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $periksa->pasien->name ?? 'N/A' }}</td>
+                                <td>{{ $periksa->keluhan }}</td>
                                 <td>
-                                    {{-- Tombol ini akan mengarah ke halaman form pemeriksaan --}}
-                                    <a href="{{ route('dokter.periksa.mulai', $janji->id) }}" class="btn btn-sm btn-warning">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
+                                    {{-- Tampilkan status  --}}
+                                    @if ($periksa->status == 'menunggu')
+                                        <span class="badge badge-warning">Menunggu</span>
+                                    @else
+                                        <span class="badge badge-success">Selesai</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    {{--  LOGIKA TOMBOL BARU --}}
+                                    @if ($periksa->status == 'menunggu')
+                                        {{-- Jika belum diperiksa, tombolnya 'Periksa' (biru) --}}
+                                        <a href="{{ route('dokter.periksa.mulai', $periksa->id) }}" class="btn btn-sm btn-primary">
+                                            Periksa
+                                        </a>
+                                    @else
+                                        {{-- Jika sudah selesai, tombolnya 'Edit' (kuning) --}}
+                                        <a href="{{ route('dokter.periksa.edit', $periksa->id) }}" class="btn btn-sm btn-warning">
+                                            Edit
+                                        </a>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center">Tidak ada pasien dalam daftar tunggu periksa.</td>
+                                <td colspan="5" class="text-center">Tidak ada pasien yang menunggu saat ini.</td>
                             </tr>
                         @endforelse
                     </tbody>

@@ -10,32 +10,23 @@ class Periksa extends Model
     use HasFactory;
 
     /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'tanggal_periksa' => 'date',
-    ];
-
-    /**
      * The attributes that are mass assignable.
-     * PASTIKAN SEMUA KOLOM INI ADA DI DALAM DAFTAR.
-     *
-     * @var array<int, string>
+     * ======================================================================
+     * == INI ADALAH PERBAIKANNYA: Menambahkan 'no_antrian' ke array ini   ==
+     * == agar nomor antrean bisa disimpan ke database.                   ==
+     * ======================================================================
      */
     protected $fillable = [
         'pasien_id',
         'dokter_id',
-        'tanggal_periksa',
+        'jadwal_id',
+        'tgl_periksa',
         'keluhan',
-        'diagnosis',
-        'catatan_dokter',
         'status',
-        'biaya_periksa',
-        'janji_temu_id',
+        'catatan',
         'diagnosa',
-        'catatan'
+        'total_harga_obat',
+        'no_antrian', // Ditambahkan di sini
     ];
 
     /**
@@ -54,13 +45,19 @@ class Periksa extends Model
         return $this->belongsTo(User::class, 'dokter_id');
     }
 
-    public function janjiTemu()
+    /**
+     * Mendefinisikan relasi ke model JadwalPeriksa.
+     */
+    public function jadwal()
     {
-        return $this->belongsTo(JanjiTemu::class);
+        return $this->belongsTo(JadwalPeriksa::class, 'jadwal_id');
     }
 
-    public function detailPeriksa()
+    /**
+     * Mendefinisikan relasi ke model DetailPeriksa (untuk resep obat).
+     */
+    public function detail()
     {
-        return $this->hasMany(DetailPeriksa::class);
+        return $this->hasMany(DetailPeriksa::class, 'periksa_id');
     }
 }

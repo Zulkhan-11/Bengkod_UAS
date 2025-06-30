@@ -9,36 +9,48 @@ class JadwalPeriksa extends Model
 {
     use HasFactory;
 
+    // Table name in the database
+    protected $table = 'jadwal_periksas';
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
+        'id_poli', // Ensure this is in fillable
         'dokter_id',
         'hari',
         'jam_mulai',
         'jam_selesai',
-        'status',
-        'poli_id', // 1. TAMBAHKAN INI untuk izin menyimpan
+        'kuota', // If you have a 'kuota' column
+        'status', // If you have a 'status' column for active/inactive schedules
     ];
 
     /**
-     * Mendefinisikan relasi ke model User (Dokter).
+     * Defines the relationship to the Poli model.
+     * A schedule belongs to one Poly.
+     */
+    public function poli()
+    {
+        return $this->belongsTo(Poli::class, 'id_poli');
+    }
+
+    /**
+     * Defines the relationship to the User model (Doctor).
+     * A schedule is created by one Doctor.
      */
     public function dokter()
     {
         return $this->belongsTo(User::class, 'dokter_id');
     }
     
-    // ===============================================
-    // == 2. TAMBAHKAN FUNGSI RELASI INI ==
-    // ===============================================
     /**
-     * Mendefinisikan relasi ke model Poli.
+     * Defines the relationship: One JadwalPeriksa has many PendaftaranPoli.
+     * Used to retrieve all registrations for this specific schedule.
      */
-    public function poli()
+    public function pendaftaranPoli()
     {
-        return $this->belongsTo(Poli::class, 'poli_id');
+        return $this->hasMany(PendaftaranPoli::class, 'id_jadwal'); // 'id_jadwal' is the foreign key in 'pendaftaran_polis' table
     }
 }

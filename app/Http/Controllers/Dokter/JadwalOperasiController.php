@@ -11,14 +11,14 @@ use Illuminate\Support\Facades\Auth;
 class JadwalOperasiController extends Controller
 {
     /**
-     * Menampilkan halaman daftar semua jadwal operasi dengan filter.
+     * untuk Menampilkan halaman daftar semua jadwal operasi dengan filter.
      */
-    public function index(Request $request) // <-- 1. Tambahkan Request $request di sini
+    public function index(Request $request) 
     {
-        // Memulai query dasar
+        // untuk Memulai query dasar
         $query = JadwalOperasi::where('dokter_id', Auth::id());
 
-        // Menerapkan filter berdasarkan input dari form
+        // untuk Menerapkan filter berdasarkan input dari form
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
@@ -27,20 +27,17 @@ class JadwalOperasiController extends Controller
             $query->whereDate('waktu_operasi', '>=', $request->tanggal_mulai);
         }
 
-        // 👇 2. TAMBAHKAN BLOK IF UNTUK FILTER TANGGAL SELESAI 👇
         if ($request->filled('tanggal_selesai')) {
             $query->whereDate('waktu_operasi', '<=', $request->tanggal_selesai);
         }
-
-        // Eksekusi query setelah semua filter diterapkan
         $jadwals = $query->with('pasien')->latest('waktu_operasi')->get();
 
-        // Tampilkan view dan kirim data 'jadwals'
+        // untuk menampilkan view dan kirim data 'jadwals'
         return view('dokter.jadwal.index', compact('jadwals'));
     }
 
     /**
-     * Menampilkan form untuk membuat jadwal operasi baru.
+     * untuk menampilkan form untuk membuat jadwal operasi baru.
      */
     public function create()
     {
@@ -49,7 +46,7 @@ class JadwalOperasiController extends Controller
     }
 
     /**
-     * Menyimpan data jadwal operasi baru ke database.
+     * untuk Menyimpan data jadwal operasi baru ke database.
      */
     public function store(Request $request)
     {
@@ -71,7 +68,7 @@ class JadwalOperasiController extends Controller
     }
 
     /**
-     * Menampilkan form untuk mengedit jadwal operasi.
+     * untuk Menampilkan form untuk mengedit jadwal operasi.
      */
     public function edit($id)
     {
@@ -82,7 +79,7 @@ class JadwalOperasiController extends Controller
     }
 
     /**
-     * Memperbarui data jadwal operasi di database.
+     * untuk Memperbarui data jadwal operasi di database.
      */
     public function update(Request $request, $id)
     {
@@ -103,7 +100,7 @@ class JadwalOperasiController extends Controller
     }
 
     /**
-     * Menghapus (membatalkan) data jadwal operasi.
+     * untuk Menghapus (membatalkan) data jadwal operasi.
      */
     public function destroy($id)
     {

@@ -17,7 +17,6 @@ class PoliController extends Controller
 
     public function create()
     {
-        // Method ini mungkin tidak terpakai jika Anda menggunakan form di halaman index
         return view('admin.poli.create');
     }
 
@@ -34,7 +33,7 @@ class PoliController extends Controller
 
     public function show(Poli $poli)
     {
-        // Biasanya tidak digunakan
+    
     }
 
     public function edit(Poli $poli)

@@ -41,11 +41,8 @@
                     <input type="text" class="form-control" id="nama_poli" name="nama_poli" value="{{ old('nama_poli') }}" placeholder="Masukkan nama poli" required>
                 </div>
                 <div class="form-group">
-                    {{-- ================================================== --}}
-                    {{-- == INI BAGIAN YANG DIPERBAIKI == --}}
                     <label for="deskripsi">Deskripsi</label>
                     <input type="text" class="form-control" id="deskripsi" name="deskripsi" value="{{ old('deskripsi') }}" placeholder="Masukkan deskripsi singkat">
-                    {{-- ================================================== --}}
                 </div>
             </div>
             <div class="card-footer">

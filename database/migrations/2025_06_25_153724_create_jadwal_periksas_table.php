@@ -14,7 +14,7 @@
                 $table->enum('hari', ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']);
                 $table->time('jam_mulai');
                 $table->time('jam_selesai');
-                $table->boolean('status')->default(true); // true = aktif, false = tidak aktif
+                $table->boolean('status')->default(false); // Defaultnya tidak aktif
                 $table->timestamps();
             });
         }

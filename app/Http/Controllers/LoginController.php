@@ -4,48 +4,41 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\RedirectResponse; // Tambahkan ini untuk type-hinting
+use Illuminate\Http\RedirectResponse;
 
 class LoginController extends Controller
 {
     /**
-     * Menampilkan halaman form login.
-     *
+     * Untuk Menampilkan halaman form login
      * @return \Illuminate\View\View
      */
     public function showLoginForm()
     {
         // Mengarahkan ke view yang berisi form login.
-        // Pastikan file ini ada di: resources/views/auth/login.blade.php
         return view('auth.login');
     }
 
     /**
-     * Menangani permintaan autentikasi (proses login).
-     *
+     * Untuk Menangani permintaan autentikasi (proses login).
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function authenticate(Request $request): RedirectResponse
     {
-        // 1. Validasi input yang masuk dari form (email dan password wajib diisi).
+        // Untuk Validasi input yang masuk dari form (email dan password wajib diisi).
         $credentials = $request->validate([
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
         ]);
 
-        // 2. Mencoba untuk melakukan autentikasi pengguna.
-        // Auth::attempt akan otomatis melakukan hashing pada password input
-        // dan membandingkannya dengan hash di database.
+        //  Mencoba untuk melakukan autentikasi pengguna.
         if (Auth::attempt($credentials)) {
-            // Jika berhasil, perbarui session untuk keamanan.
             $request->session()->regenerate();
 
-            // 3. Dapatkan data pengguna yang sedang login.
+            // untuk mendapatkan data pengguna yang sedang login.
             $user = Auth::user();
 
-            // 4. Arahkan pengguna berdasarkan peran (role) mereka.
-            // Menggunakan switch lebih rapi untuk banyak peran.
+            // Untuk Mengarahkan pengguna berdasarkan peran (role) mereka.
             switch ($user->role) {
                 case 'admin':
                     // Jika peran adalah 'admin', arahkan ke dashboard admin.
